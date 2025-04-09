@@ -7,6 +7,9 @@ import PriceChart from "../components/PriceChart";
 export default function Home() {
   const [prices, setPrices] = useState({ btc: 0, eth: 0, sol: 0 });
   const [prediction, setPrediction] = useState(null);
+  const [notificationStatus, setNotificationStatus] = useState(null);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -27,15 +30,47 @@ export default function Home() {
     });
     const data = await res.json();
     setPrediction(data.prediction);
+
+    const message = `${crypto} Prediction: ${data.prediction}\nCurrent Price: $${price.toLocaleString()}`;
+    await sendNotification(message);
+  };
+
+  const sendNotification = async (message) => {
+    const res = await fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+    const data = await res.json();
+    setNotificationStatus(data.message);
+  };
+
+  const savePrices = async () => {
+    const res = await fetch("/api/save-price", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(prices),
+    });
+    const data = await res.json();
+    setSaveStatus(data.message);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
       {/* Sidebar */}
-      <div className="w-64 bg-gray-800 flex-shrink-0 flex flex-col">
-        <div className="p-4 border-b border-gray-700 flex items-center">
-          <i className="fas fa-chart-line text-blue-400 mr-3"></i>
-          <h1 className="text-xl font-bold">XTraderVision</h1>
+      <div
+        className={`fixed inset-y-0 left-0 w-64 bg-gray-800 flex-shrink-0 flex flex-col transform transition-transform duration-300 md:static md:transform-none ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 z-50`}
+      >
+        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+          <div className="flex items-center">
+            <i className="fas fa-chart-line text-blue-400 mr-3"></i>
+            <h1 className="text-xl font-bold">XTraderVision</h1>
+          </div>
+          <button className="md:hidden text-gray-400" onClick={() => setIsSidebarOpen(false)}>
+            <i className="fas fa-times"></i>
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           <div className="p-4">
@@ -114,13 +149,18 @@ export default function Home() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="bg-gray-800 p-4 flex items-center justify-between border-b border-gray-700">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search pair (e.g. BTC/USDT)"
-              className="bg-gray-700 rounded-full py-1 px-4 pl-10 text-sm w-64 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            <i className="fas fa-search absolute left-3 top-2 text-gray-400"></i>
+          <div className="flex items-center space-x-4">
+            <button className="md:hidden text-gray-400" onClick={() => setIsSidebarOpen(true)}>
+              <i className="fas fa-bars"></i>
+            </button>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search pair (e.g. BTC/USDT)"
+                className="bg-gray-700 rounded-full py-1 px-4 pl-10 text-sm w-64 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <i className="fas fa-search absolute left-3 top-2 text-gray-400"></i>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <div className="flex items-center">
@@ -136,7 +176,15 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto p-6">
           {/* Market Overview */}
           <div className="bg-gray-800 rounded-xl p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4">BTC/USDT Market Overview</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">BTC/USDT Market Overview</h2>
+              <button
+                className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm"
+                onClick={savePrices}
+              >
+                Save Prices
+              </button>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-700 rounded-lg p-3">
                 <div className="text-gray-400 text-sm mb-1">Price</div>
@@ -162,6 +210,9 @@ export default function Home() {
             <div className="h-64 mb-6">
               <PriceChart />
             </div>
+            {saveStatus && (
+              <div className="mt-4 text-green-400">{saveStatus}</div>
+            )}
           </div>
 
           {/* AI Signals */}
@@ -219,6 +270,9 @@ export default function Home() {
                 )}
               </div>
             </div>
+            {notificationStatus && (
+              <div className="mt-4 text-green-400">{notificationStatus}</div>
+            )}
           </div>
 
           {/* Trade Panel */}
