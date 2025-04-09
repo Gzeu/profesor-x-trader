@@ -10,15 +10,28 @@ export default function Home() {
   const [notificationStatus, setNotificationStatus] = useState(null);
   const [saveStatus, setSaveStatus] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [orderBook, setOrderBook] = useState({ bids: 0, asks: 0, bidQty: 0, askQty: 0 });
 
   useEffect(() => {
     const fetchPrices = async () => {
       const res = await fetch("/api/price");
       const data = await res.json();
+      console.log("Fetched prices:", data);
       setPrices(data);
     };
     fetchPrices();
     const interval = setInterval(fetchPrices, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchOrderBook = async () => {
+      const res = await fetch("/api/order-book");
+      const data = await res.json();
+      setOrderBook(data);
+    };
+    fetchOrderBook();
+    const interval = setInterval(fetchOrderBook, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -213,6 +226,45 @@ export default function Home() {
             {saveStatus && (
               <div className="mt-4 text-green-400">{saveStatus}</div>
             )}
+          </div>
+
+          {/* Order Book */}
+          <div className="bg-gray-800 rounded-xl p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Order Book (BTC/USDT)</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2">
+                    <i className="fas fa-arrow-up text-white"></i>
+                  </div>
+                  <span className="font-medium">Bids</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-400">Price</span>
+                  <span className="font-medium">${parseFloat(orderBook.bids).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Quantity</span>
+                  <span className="font-medium">{parseFloat(orderBook.bidQty).toLocaleString()} BTC</span>
+                </div>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center mr-2">
+                    <i className="fas fa-arrow-down text-white"></i>
+                  </div>
+                  <span className="font-medium">Asks</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-400">Price</span>
+                  <span className="font-medium">${parseFloat(orderBook.asks).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Quantity</span>
+                  <span className="font-medium">{parseFloat(orderBook.askQty).toLocaleString()} BTC</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* AI Signals */}
