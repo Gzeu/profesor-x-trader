@@ -1,0 +1,53 @@
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Conținutul din style.css */
+.price-pulse-green {
+  animation: pulse-green 0.5s ease-in-out;
+}
+
+.price-pulse-red {
+  animation: pulse-red 0.5s ease-in-out;
+}
+
+@keyframes pulse-green {
+  0% { color: #34d399; transform: scale(1); }
+  50% { color: #10b981; transform: scale(1.05); }
+  100% { color: #34d399; transform: scale(1); }
+}
+
+@keyframes pulse-red {
+  0% { color: #f87171; transform: scale(1); }
+  50% { color: #ef4444; transform: scale(1.05); }
+  100% { color: #f87171; transform: scale(1); }
+}
+body {
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, "Arial", sans-serif;
+}
+
+h1 {
+	font-size: 16px;
+	margin-top: 0;
+}
+
+p {
+	color: rgb(107, 114, 128);
+	font-size: 15px;
+	margin-bottom: 10px;
+	margin-top: 5px;
+}
+
+.card {
+	max-width: 620px;
+	margin: 0 auto;
+	padding: 16px;
+	border: 1px solid lightgray;
+	border-radius: 16px;
+}
+
+.card p:last-child {
+	margin-bottom: 0;
+}

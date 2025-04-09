@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@binance/connector": "^3.6.1",
+    "ai": "^4.3.4"
+  }
+}
