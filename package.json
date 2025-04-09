@@ -1,7 +1,26 @@
 {
+  "name": "profesor-x-trader",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
-    "@binance/connector": "^3.6.1",
-    "ai": "^4.3.4",
-    "mongodb": "^6.15.0"
+    "next": "14.2.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "@binance/connector": "^3.0.0",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0",
+    "mongodb": "^6.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0"
   }
 }

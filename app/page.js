@@ -11,6 +11,14 @@ export default function Home() {
   const [saveStatus, setSaveStatus] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [orderBook, setOrderBook] = useState({ bids: 0, asks: 0, bidQty: 0, askQty: 0 });
+  const [sentiment, setSentiment] = useState("Loading...");
+  const [cmcData, setCmcData] = useState({
+    rank: 0,
+    volume_24h: 0,
+    market_cap: 0,
+    circulating_supply: 0,
+    total_supply: 0,
+  });
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -32,6 +40,28 @@ export default function Home() {
     };
     fetchOrderBook();
     const interval = setInterval(fetchOrderBook, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchSentiment = async () => {
+      const res = await fetch("/api/sentiment");
+      const data = await res.json();
+      setSentiment(data.sentiment);
+    };
+    fetchSentiment();
+    const interval = setInterval(fetchSentiment, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchCmcData = async () => {
+      const res = await fetch("/api/coinmarketcap");
+      const data = await res.json();
+      setCmcData(data);
+    };
+    fetchCmcData();
+    const interval = setInterval(fetchCmcData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -95,7 +125,7 @@ export default function Home() {
                   <span>Dashboard</span>
                 </Link>
               </li>
-              <li className="mb-1">
+              <li className "mb-1">
                 <Link href="/portfolio" className="flex items-center p-2 rounded hover:bg-gray-700">
                   <i className="fas fa-wallet mr-3 text-green-400"></i>
                   <span>Portfolio</span>
@@ -206,18 +236,20 @@ export default function Home() {
               </div>
               <div className="bg-gray-700 rounded-lg p-3">
                 <div className="text-gray-400 text-sm mb-1">24h Volume</div>
-                <div className="text-2xl font-bold">$1.24B</div>
+                <div className="text-2xl font-bold">${(cmcData.volume_24h / 1e9)?.toFixed(2)}B</div>
                 <div className="text-green-400 text-sm">+15.6%</div>
               </div>
               <div className="bg-gray-700 rounded-lg p-3">
                 <div className="text-gray-400 text-sm mb-1">Market Cap</div>
-                <div className="text-2xl font-bold">$816.5B</div>
-                <div className="text-gray-400 text-sm">#1</div>
+                <div className="text-2xl font-bold">${(cmcData.market_cap / 1e9)?.toFixed(2)}B</div>
+                <div className="text-gray-400 text-sm">#{cmcData.rank}</div>
               </div>
               <div className="bg-gray-700 rounded-lg p-3">
                 <div className="text-gray-400 text-sm mb-1">Circulating Supply</div>
-                <div className="text-2xl font-bold">19.3M BTC</div>
-                <div className="text-gray-400 text-sm">91.8% of max</div>
+                <div className="text-2xl font-bold">{(cmcData.circulating_supply / 1e6)?.toFixed(1)}M BTC</div>
+                <div className="text-gray-400 text-sm">
+                  {((cmcData.circulating_supply / cmcData.total_supply) * 100)?.toFixed(1)}% of total
+                </div>
               </div>
             </div>
             <div className="h-64 mb-6">
@@ -264,6 +296,23 @@ export default function Home() {
                   <span className="font-medium">{parseFloat(orderBook.askQty).toLocaleString()} BTC</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Market Sentiment Analysis */}
+          <div className="bg-gray-800 rounded-xl p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Market Sentiment Analysis (BTC)</h2>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                  <i className="fas fa-chart-pie text-white"></i>
+                </div>
+                <span className="font-medium">Sentiment</span>
+              </div>
+              <div className="text-2xl font-bold text-blue-400">{sentiment}</div>
+              <p className="text-sm text-gray-300 mt-2">
+                Based on recent news and social media activity (via Perplexity AI).
+              </p>
             </div>
           </div>
 
