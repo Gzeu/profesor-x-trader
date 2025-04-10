@@ -125,7 +125,7 @@ export default function Home() {
                   <span>Dashboard</span>
                 </Link>
               </li>
-              <li className "mb-1">
+              <li className="mb-1">
                 <Link href="/portfolio" className="flex items-center p-2 rounded hover:bg-gray-700">
                   <i className="fas fa-wallet mr-3 text-green-400"></i>
                   <span>Portfolio</span>
